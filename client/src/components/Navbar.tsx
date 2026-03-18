@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
@@ -17,6 +18,7 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+  const [, setLocation] = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -77,16 +79,16 @@ export default function Navbar() {
               variant="outline"
               size="sm"
               className="border-white/30 text-white bg-transparent hover:bg-white/10 font-dm-sans"
-              onClick={() => handleNavClick("#pricing")}
+              onClick={() => setLocation("/login")}
             >
-              免费咨询
+              登录
             </Button>
             <Button
               size="sm"
               className="bg-[#E8603C] hover:bg-[#d45530] text-white border-0 font-dm-sans"
-              onClick={() => handleNavClick("#pricing")}
+              onClick={() => setLocation("/register")}
             >
-              立即加入
+              注册
             </Button>
           </div>
 
@@ -118,16 +120,16 @@ export default function Navbar() {
                 variant="outline"
                 size="sm"
                 className="flex-1 border-white/30 text-white bg-transparent hover:bg-white/10"
-                onClick={() => handleNavClick("#pricing")}
+                onClick={() => setLocation("/login")}
               >
-                免费咨询
+                登录
               </Button>
               <Button
                 size="sm"
                 className="flex-1 bg-[#E8603C] hover:bg-[#d45530] text-white border-0"
-                onClick={() => handleNavClick("#pricing")}
+                onClick={() => setLocation("/register")}
               >
-                立即加入
+                注册
               </Button>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, localUsers, InsertLocalUser, LocalUser } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,79 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+/**
+ * Local user queries
+ */
+
+export async function createLocalUser(
+  user: InsertLocalUser
+): Promise<LocalUser | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot create user: database not available");
+    return null;
+  }
+
+  try {
+    const result = await db.insert(localUsers).values(user);
+    const userId = (result as any).insertId;
+    return await getLocalUserById(userId);
+  } catch (error) {
+    console.error("[Database] Failed to create local user:", error);
+    throw error;
+  }
+}
+
+export async function getLocalUserByEmail(email: string): Promise<LocalUser | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(localUsers)
+    .where(eq(localUsers.email, email))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function getLocalUserById(id: number): Promise<LocalUser | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot get user: database not available");
+    return null;
+  }
+
+  const result = await db
+    .select()
+    .from(localUsers)
+    .where(eq(localUsers.id, id))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateLocalUser(
+  id: number,
+  updates: Partial<InsertLocalUser>
+): Promise<LocalUser | null> {
+  const db = await getDb();
+  if (!db) {
+    console.warn("[Database] Cannot update user: database not available");
+    return null;
+  }
+
+  try {
+    await db
+      .update(localUsers)
+      .set(updates)
+      .where(eq(localUsers.id, id));
+    return await getLocalUserById(id);
+  } catch (error) {
+    console.error("[Database] Failed to update local user:", error);
+    throw error;
+  }
+}
