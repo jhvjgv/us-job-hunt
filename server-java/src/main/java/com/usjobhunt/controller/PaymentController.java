@@ -3,6 +3,7 @@ package com.usjobhunt.controller;
 import com.usjobhunt.dto.PaymentRequest;
 import com.usjobhunt.dto.PaymentResponse;
 import com.usjobhunt.dto.PricingPlan;
+import com.usjobhunt.dto.UpdateUserInfoRequest;
 import com.usjobhunt.entity.Order;
 import com.usjobhunt.service.PaymentService;
 import jakarta.validation.Valid;
@@ -51,5 +52,19 @@ public class PaymentController {
     public ResponseEntity<List<PricingPlan>> getPricingPlans() {
         List<PricingPlan> plans = paymentService.getPricingPlans();
         return ResponseEntity.ok(plans);
+    }
+    
+    @PostMapping("/updateUserInfo")
+    public ResponseEntity<?> updateUserInfo(@Valid @RequestBody UpdateUserInfoRequest request) {
+        try {
+            Map<String, Object> result = paymentService.updateUserInfo(
+                request.getOrderId(),
+                request.getBilibiliAccount(),
+                request.getPhone()
+            );
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }

@@ -174,4 +174,23 @@ public class PaymentService {
     public List<PricingPlan> getPricingPlans() {
         return new ArrayList<>(PRICING_PLANS.values());
     }
+    
+    public Map<String, Object> updateUserInfo(String orderId, String bilibiliAccount, String phone) {
+        try {
+            Optional<Order> orderOpt = orderRepository.findByTransactionId(orderId);
+            if (orderOpt.isEmpty()) {
+                return Map.of("success", false, "message", "Order not found");
+            }
+            
+            Order order = orderOpt.get();
+            order.setBilibiliAccount(bilibiliAccount);
+            order.setPhone(phone);
+            order.setInfoSubmitted(true);
+            orderRepository.save(order);
+            
+            return Map.of("success", true, "message", "User info updated successfully");
+        } catch (Exception e) {
+            return Map.of("success", false, "message", "Failed to update user info");
+        }
+    }
 }

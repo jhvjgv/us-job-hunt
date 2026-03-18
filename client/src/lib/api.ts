@@ -106,4 +106,14 @@ export const paymentApi = {
       method: 'POST',
     });
   },
+
+  updateUserInfo: (data: {
+    orderId: string;
+    bilibiliAccount: string;
+    phone: string;
+  }) =>
+    apiCall('/payment/updateUserInfo', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 };

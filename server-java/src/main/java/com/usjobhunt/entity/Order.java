@@ -51,6 +51,15 @@ public class Order {
     @Column
     private LocalDateTime expiresAt;  // Course expiration time
     
+    @Column(length = 100)
+    private String bilibiliAccount;  // Bilibili account
+    
+    @Column(length = 20)
+    private String phone;  // Phone number
+    
+    @Column
+    private Boolean infoSubmitted = false;  // Whether user info has been submitted
+    
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
