@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: us-job-hunt-backend
+  
+  datasource:
+    url: jdbc:mysql://localhost:3306/us_job_hunt?useSSL=false&serverTimezone=UTC&characterEncoding=utf8mb4
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+  
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    root: INFO
+    com.usjobhunt: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:your-secret-key-change-in-production-environment}
+  expiration: 86400000  # 24 hours in milliseconds
+
+# Alipay Configuration
+alipay:
+  app-id: ${ALIPAY_APP_ID:}
+  merchant-private-key: ${ALIPAY_MERCHANT_PRIVATE_KEY:}
+  alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+  gateway-url: https://openapi.alipay.com/gateway.do
+
+# CORS Configuration
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:5173
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: '*'
+  allow-credentials: true
+  max-age: 3600
