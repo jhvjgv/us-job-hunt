@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check, Zap } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 const plans = [
   {
@@ -149,7 +150,7 @@ function PricingCard({ plan, index }: { plan: typeof plans[0]; index: number }) 
               ? "bg-[#E8603C] hover:bg-[#d45530] text-white border-0 shadow-lg shadow-[#E8603C]/30"
               : "bg-white/10 hover:bg-white/20 text-white border border-white/20"
           }`}
-          onClick={() => toast.info("感谢你的兴趣！请通过微信联系我们进行报名。")}
+          onClick={() => window.location.href = "/pricing"}
         >
           {plan.cta}
         </Button>
