@@ -1,4 +1,4 @@
--- 新项目数据库初始化脚本（使用 userId 作为主键）
+-- 新项目数据库初始化脚本（使用 userId 和 orderId 作为主键）
 -- 如果您是新项目，建议直接使用此脚本而不是之前的 schema.sql
 
 -- 创建数据库
@@ -23,26 +23,27 @@ CREATE TABLE IF NOT EXISTS local_users (
     INDEX idx_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Local user accounts';
 
--- 创建订单表
+-- 创建订单表（使用 orderId 作为主键）
 CREATE TABLE IF NOT EXISTS orders (
-    id INT AUTO_INCREMENT PRIMARY KEY COMMENT 'Order ID',
+    id INT AUTO_INCREMENT UNIQUE COMMENT 'Physical ID for database optimization',
+    order_id BIGINT PRIMARY KEY COMMENT 'Snowflake ID - Global unique identifier for orders',
     user_id BIGINT NOT NULL COMMENT 'Reference to local_users.user_id',
     plan_name VARCHAR(50) NOT NULL COMMENT 'Plan name: starter, pro, elite',
     price DECIMAL(10, 2) NOT NULL COMMENT 'Order price',
     currency VARCHAR(10) NOT NULL DEFAULT 'USD' COMMENT 'Currency code',
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING' COMMENT 'Order status: PENDING, PAID, FAILED, REFUNDED',
     payment_method VARCHAR(50) COMMENT 'Payment method: alipay, wechat, etc',
-    transaction_id VARCHAR(100) COMMENT 'Third-party payment transaction ID',
+    transaction_id VARCHAR(100) UNIQUE COMMENT 'Third-party payment transaction ID',
     bilibili_account VARCHAR(100) COMMENT 'User Bilibili account',
     phone VARCHAR(20) COMMENT 'User phone number',
     info_submitted TINYINT(1) DEFAULT 0 COMMENT 'Whether user info has been submitted',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Order creation time',
     paid_at TIMESTAMP NULL COMMENT 'Payment completion time',
     expires_at TIMESTAMP NULL COMMENT 'Course expiration time',
-    FOREIGN KEY (user_id) REFERENCES local_users(user_id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
     INDEX idx_status (status),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    INDEX idx_transaction_id (transaction_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='User orders and payments';
 
 -- 创建审计日志表（可选，用于记录关键操作）

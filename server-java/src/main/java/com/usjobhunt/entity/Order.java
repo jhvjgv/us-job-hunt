@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.usjobhunt.util.SnowflakeIdGenerator;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,7 +18,11 @@ import java.time.LocalDateTime;
 public class Order {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "order_id")
+    private Long orderId;  // 使用雪花算法生成的全局唯一 ID
+    
+    // 物理主键（保留用于数据库优化）
+    @Column(name = "id", insertable = false, updatable = false)
     private Integer id;
     
     @Column(nullable = false)
@@ -62,6 +67,11 @@ public class Order {
     
     @PrePersist
     protected void onCreate() {
+        // 如果 orderId 未设置，自动生成
+        if (this.orderId == null) {
+            SnowflakeIdGenerator generator = new SnowflakeIdGenerator();
+            this.orderId = generator.nextId();
+        }
         createdAt = LocalDateTime.now();
     }
     

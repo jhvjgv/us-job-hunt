@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class PaymentResponse {
-    private String orderId;
+    private Long orderId;  // Snowflake ID
     private String paymentUrl;
     private PlanInfo plan;
     

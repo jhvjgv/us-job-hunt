@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, Integer> {
+public interface OrderRepository extends JpaRepository<Order, Long> {
     Optional<Order> findByTransactionId(String transactionId);
-    List<Order> findByUserId(Integer userId);
+    List<Order> findByUserId(Long userId);
 }
