@@ -34,47 +34,30 @@ public class PaymentService {
     private static final Map<String, PricingPlan> PRICING_PLANS = new LinkedHashMap<>();
     
     static {
-        PRICING_PLANS.put("starter", PricingPlan.builder()
-            .id("starter")
-            .name("Starter")
-            .price(new BigDecimal("99"))
-            .description("基础求职辅导")
-            .features(Arrays.asList(
-                "简历优化 1 次",
-                "模拟面试 2 次",
-                "求职资源库访问"
-            ))
-            .build());
-        
-        PRICING_PLANS.put("pro", PricingPlan.builder()
-            .id("pro")
-            .name("Pro")
-            .price(new BigDecimal("299"))
-            .description("专业求职辅导")
-            .features(Arrays.asList(
-                "简历优化 3 次",
-                "模拟面试 8 次",
-                "一对一导师指导（4 小时）",
-                "求职资源库访问",
-                "内推机会"
-            ))
-            .build());
-        
-        PRICING_PLANS.put("elite", PricingPlan.builder()
-            .id("elite")
-            .name("Elite")
+        // 极简版：仅支持一年期普通会员
+        PricingPlan annualMembership = PricingPlan.builder()
+            .id("annual")
+            .name("年度会员")
             .price(new BigDecimal("599"))
-            .description("精英求职辅导")
+            .description("一年期普通会员 - 享受全部 VIP 功能")
             .features(Arrays.asList(
-                "简历优化 5 次",
-                "模拟面试 16 次",
-                "一对一导师指导（12 小时）",
+                "简历优化（无限次）",
+                "模拟面试（无限次）",
+                "一对一导师指导（无限）",
                 "求职资源库访问",
                 "内推机会",
                 "Offer 谈判协助",
-                "职业规划咨询"
+                "职业规划咨询",
+                "知识星球社群",
+                "企业微信群"
             ))
-            .build());
+            .build();
+        
+        // 所有套餐都指向同一个会员等级
+        PRICING_PLANS.put("annual", annualMembership);
+        PRICING_PLANS.put("starter", annualMembership);
+        PRICING_PLANS.put("pro", annualMembership);
+        PRICING_PLANS.put("elite", annualMembership);
     }
     
     public PaymentResponse createOrder(PaymentRequest request) {
@@ -90,10 +73,10 @@ public class PaymentService {
         
         // Find or create user
         Optional<LocalUser> existingUser = userRepository.findByEmail(request.getEmail());
-        Integer userId;
+        Long userId;
         
         if (existingUser.isPresent()) {
-            userId = existingUser.get().getId();
+            userId = existingUser.get().getUserId();
         } else {
             LocalUser newUser = LocalUser.builder()
                 .email(request.getEmail())
@@ -102,13 +85,13 @@ public class PaymentService {
                 .isVerified(false)
                 .build();
             LocalUser savedUser = userRepository.save(newUser);
-            userId = savedUser.getId();
+            userId = savedUser.getUserId();
         }
         
-        // Create order
+        // Create order - always use "annual" as plan_name
         Order order = Order.builder()
             .userId(userId)
-            .planName(request.getPlanId())
+            .planName("annual")  // 统一为 "annual"
             .price(plan.getPrice())
             .currency("USD")
             .status(Order.OrderStatus.PENDING)
@@ -122,14 +105,14 @@ public class PaymentService {
         String paymentUrl = alipayUtil.generatePaymentUrl(
             orderId,
             plan.getPrice().toString(),
-            "美职通 - " + plan.getName() + " 套餐",
-            "华人程序员美国求职辅导 - " + plan.getName() + " 套餐",
+            "美职通 - " + plan.getName(),
+            "华人程序员美国求职辅导 - " + plan.getName(),
             "http://localhost:3000/payment/success?orderId=" + orderId,
             "http://localhost:8080/api/payment/notifyAlipay"
         );
         
         return PaymentResponse.builder()
-            .orderId(orderId)
+            .orderId(order.getOrderId())
             .paymentUrl(paymentUrl)
             .plan(PaymentResponse.PlanInfo.builder()
                 .id(plan.getId())
@@ -163,8 +146,8 @@ public class PaymentService {
             Order order = orderOpt.get();
             order.setStatus(Order.OrderStatus.PAID);
             order.setPaidAt(LocalDateTime.now());
-            // Set expiration to 6 months from now
-            order.setExpiresAt(LocalDateTime.now().plusMonths(6));
+            // 一年期会员：到期时间 = 支付时间 + 1 年
+            order.setExpiresAt(LocalDateTime.now().plusYears(1));
             orderRepository.save(order);
             
             // 🎯 核心逻辑：支付成功后，立即发放会员权益
