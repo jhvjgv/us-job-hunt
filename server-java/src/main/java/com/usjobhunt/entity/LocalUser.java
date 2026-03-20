@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import com.usjobhunt.util.SnowflakeIdGenerator;
 
 @Entity
 @Table(name = "local_users")
@@ -16,7 +17,11 @@ import java.time.LocalDateTime;
 public class LocalUser {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Long userId;  // 使用雪花算法生成的全局唯一 ID
+    
+    // 物理主键（保留用于数据库优化）
+    @Column(name = "id", insertable = false, updatable = false)
     private Integer id;
     
     @Column(nullable = false, unique = true, length = 320)
@@ -51,6 +56,11 @@ public class LocalUser {
     
     @PrePersist
     protected void onCreate() {
+        // 如果 userId 未设置，自动生成
+        if (this.userId == null) {
+            SnowflakeIdGenerator generator = new SnowflakeIdGenerator();
+            this.userId = generator.nextId();
+        }
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }

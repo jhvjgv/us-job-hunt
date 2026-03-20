@@ -21,7 +21,7 @@ public class Order {
     private Integer id;
     
     @Column(nullable = false)
-    private Integer userId;  // Reference to localUsers.id
+    private Long userId;  // Reference to localUsers.user_id (Snowflake ID)
     
     @Column(nullable = false, length = 50)
     private String planName;  // "starter", "pro", "elite"

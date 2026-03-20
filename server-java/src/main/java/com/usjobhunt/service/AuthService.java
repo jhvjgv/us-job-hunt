@@ -51,10 +51,10 @@ public class AuthService {
         
         LocalUser savedUser = userRepository.save(newUser);
         
-        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getEmail());
+        String token = jwtUtil.generateToken(savedUser.getUserId(), savedUser.getEmail());
         
         return AuthResponse.builder()
-            .id(savedUser.getId())
+            .id(savedUser.getUserId())
             .email(savedUser.getEmail())
             .name(savedUser.getName())
             .token(token)
@@ -74,10 +74,10 @@ public class AuthService {
             throw new IllegalArgumentException("邮箱或密码错误");
         }
         
-        String token = jwtUtil.generateToken(user.getId(), user.getEmail());
+        String token = jwtUtil.generateToken(user.getUserId(), user.getEmail());
         
         return AuthResponse.builder()
-            .id(user.getId())
+            .id(user.getUserId())
             .email(user.getEmail())
             .name(user.getName())
             .token(token)
@@ -88,7 +88,7 @@ public class AuthService {
         return userRepository.existsByEmail(email);
     }
     
-    public Optional<LocalUser> getUserById(Integer userId) {
+    public Optional<LocalUser> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
     
