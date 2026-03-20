@@ -169,11 +169,7 @@ public class PaymentService {
             
             // 🎯 核心逻辑：支付成功后，立即发放会员权益
             // 这是一个原子操作，两个数据库写入在同一个事务中
-            membershipService.grantMembership(
-                order.getUserId(),
-                order.getPlanName(),
-                order.getOrderId()
-            );
+            membershipService.grantMembership(order.getUserId());
             
             return Map.of("success", true, "message", "Order updated successfully");
         } catch (Exception e) {
