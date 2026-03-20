@@ -8,6 +8,7 @@ import com.usjobhunt.entity.Order;
 import com.usjobhunt.repository.LocalUserRepository;
 import com.usjobhunt.repository.OrderRepository;
 import com.usjobhunt.util.AlipayUtil;
+import com.usjobhunt.service.MembershipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final LocalUserRepository userRepository;
     private final AlipayUtil alipayUtil;
+    private final MembershipService membershipService;
     
     @Value("${alipay.app-id:}")
     private String alipayAppId;
@@ -164,6 +166,14 @@ public class PaymentService {
             // Set expiration to 6 months from now
             order.setExpiresAt(LocalDateTime.now().plusMonths(6));
             orderRepository.save(order);
+            
+            // 🎯 核心逻辑：支付成功后，立即发放会员权益
+            // 这是一个原子操作，两个数据库写入在同一个事务中
+            membershipService.grantMembership(
+                order.getUserId(),
+                order.getPlanName(),
+                order.getOrderId()
+            );
             
             return Map.of("success", true, "message", "Order updated successfully");
         } catch (Exception e) {
