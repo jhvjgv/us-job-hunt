@@ -22,7 +22,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
     
-    public String generateToken(Integer userId, String email) {
+    public String generateToken(Long userId, String email) {
         return Jwts.builder()
             .subject(String.valueOf(userId))
             .claim("email", email)
@@ -32,9 +32,9 @@ public class JwtUtil {
             .compact();
     }
     
-    public Integer getUserIdFromToken(String token) {
+    public Long getUserIdFromToken(String token) {
         Claims claims = getAllClaimsFromToken(token);
-        return Integer.parseInt(claims.getSubject());
+        return Long.parseLong(claims.getSubject());
     }
     
     public String getEmailFromToken(String token) {
