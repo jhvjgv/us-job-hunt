@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 
 export interface LocalUser {
-  id: number;
+  id: number | string;
   email: string;
   name: string;
 }

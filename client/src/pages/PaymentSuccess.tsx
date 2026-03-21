@@ -1,27 +1,26 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc";
+import { paymentApi } from "@/lib/api";
 import { CheckCircle, Loader2 } from "lucide-react";
 
 export default function PaymentSuccess() {
-  const [location] = useLocation();
   const [orderId, setOrderId] = useState<string | null>(null);
 
-  const { data: order, isLoading } = trpc.payment.getOrder.useQuery(
-    { orderId: orderId || "" },
-    { enabled: !!orderId }
-  );
-
   useEffect(() => {
-    // 从 URL 获取订单 ID
     const params = new URLSearchParams(window.location.search);
     const id = params.get("orderId");
     if (id) {
       setOrderId(id);
     }
   }, []);
+
+  const { data: order, isLoading } = useQuery({
+    queryKey: ["payment", "order", orderId],
+    queryFn: () => paymentApi.getOrder(orderId!),
+    enabled: Boolean(orderId),
+  });
 
   if (!orderId) {
     return (
@@ -58,7 +57,6 @@ export default function PaymentSuccess() {
         </CardHeader>
 
         <CardContent className="space-y-6">
-          {/* 订单信息 */}
           <div className="bg-slate-50 p-4 rounded-lg space-y-3">
             <div className="flex justify-between">
               <span className="text-slate-600">订单号</span>
@@ -80,7 +78,6 @@ export default function PaymentSuccess() {
             </div>
           </div>
 
-          {/* 后续步骤 */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <h3 className="font-semibold text-slate-900 mb-2">接下来的步骤：</h3>
             <ol className="list-decimal list-inside space-y-2 text-sm text-slate-700">
@@ -91,27 +88,23 @@ export default function PaymentSuccess() {
             </ol>
           </div>
 
-          {/* 按钮 */}
           <div className="space-y-3">
             <Button
-              onClick={() => window.location.href = "/"}
+              onClick={() => (window.location.href = "/")}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white"
             >
               返回首页
             </Button>
             <Button
               variant="outline"
-              onClick={() => window.location.href = "/"}
+              onClick={() => (window.location.href = "/")}
               className="w-full"
             >
               查看课程
             </Button>
           </div>
 
-          {/* 提示 */}
-          <p className="text-xs text-slate-500 text-center">
-            订单确认邮件已发送至你的邮箱
-          </p>
+          <p className="text-xs text-slate-500 text-center">订单确认邮件已发送至你的邮箱</p>
         </CardContent>
       </Card>
     </div>

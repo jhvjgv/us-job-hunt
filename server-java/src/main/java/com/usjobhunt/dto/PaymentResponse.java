@@ -1,5 +1,7 @@
 package com.usjobhunt.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 public class PaymentResponse {
-    private Long orderId;  // Snowflake ID
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long orderId;
     private String paymentUrl;
     private PlanInfo plan;
     

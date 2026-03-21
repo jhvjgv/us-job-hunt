@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { trpc } from "@/lib/trpc";
+import { paymentApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2, Check } from "lucide-react";
 
@@ -13,8 +14,14 @@ export default function Pricing() {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const { data: plans, isLoading: plansLoading } = trpc.payment.getPricingPlans.useQuery();
-  const createOrderMutation = trpc.payment.createOrder.useMutation();
+  const { data: plans = [], isLoading: plansLoading } = useQuery({
+    queryKey: ["payment", "plans"],
+    queryFn: () => paymentApi.getPricingPlans(),
+  });
+
+  const createOrderMutation = useMutation({
+    mutationFn: paymentApi.createOrder,
+  });
 
   const handlePayment = async (planId: string) => {
     if (!email || !name) {
@@ -30,10 +37,10 @@ export default function Pricing() {
         name,
       });
 
-      // 重定向到支付宝支付页面
       window.location.href = result.paymentUrl;
-    } catch (error: any) {
-      toast.error(error?.message || "创建订单失败");
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : "创建订单失败";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
@@ -93,60 +100,41 @@ export default function Pricing() {
 
         {/* 定价卡片 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans?.map((plan) => (
+          {plans.map((plan) => (
             <Card
               key={plan.id}
-              className={`relative bg-white border-2 transition-all ${
+              className={`relative border-2 transition-all hover:shadow-xl ${
                 selectedPlan === plan.id
                   ? "border-orange-500 shadow-lg"
-                  : "border-slate-200 hover:border-slate-300"
+                  : "border-slate-200"
               }`}
             >
-              {/* 推荐标签 */}
-              {plan.id === "pro" && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-orange-500 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                    推荐
-                  </span>
-                </div>
-              )}
-
               <CardHeader>
                 <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <CardDescription>{plan.description}</CardDescription>
-              </CardHeader>
-
-              <CardContent className="space-y-6">
-                {/* 价格 */}
-                <div>
+                <CardDescription className="text-base">{plan.description}</CardDescription>
+                <div className="pt-4">
                   <span className="text-4xl font-bold text-slate-900">${plan.price}</span>
                   <span className="text-slate-600 ml-2">USD</span>
                 </div>
-
-                {/* 功能列表 */}
+              </CardHeader>
+              <CardContent className="space-y-6">
                 <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  {plan.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                       <span className="text-slate-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
-
-                {/* 购买按钮 */}
                 <Button
+                  className="w-full bg-orange-500 hover:bg-orange-600 text-white"
                   onClick={() => {
                     setSelectedPlan(plan.id);
                     handlePayment(plan.id);
                   }}
                   disabled={isLoading}
-                  className={`w-full h-12 text-base font-semibold ${
-                    plan.id === "pro"
-                      ? "bg-orange-500 hover:bg-orange-600 text-white"
-                      : "bg-slate-200 hover:bg-slate-300 text-slate-900"
-                  }`}
                 >
-                  {isLoading && selectedPlan === plan.id ? (
+                  {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       处理中...
@@ -158,31 +146,6 @@ export default function Pricing() {
               </CardContent>
             </Card>
           ))}
-        </div>
-
-        {/* 常见问题 */}
-        <div className="mt-16 bg-white rounded-lg p-8 border border-slate-200">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">常见问题</h2>
-          <div className="space-y-6">
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">可以升级或降级套餐吗？</h3>
-              <p className="text-slate-600">
-                可以。购买后 7 天内可以无条件升级到更高级套餐，差价按比例退款。
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">套餐有有效期吗？</h3>
-              <p className="text-slate-600">
-                所有套餐自购买之日起有效期为 6 个月。期间可以无限次使用所有服务。
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-slate-900 mb-2">支持哪些支付方式？</h3>
-              <p className="text-slate-600">
-                目前支持支付宝支付。我们将很快支持微信支付和信用卡支付。
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

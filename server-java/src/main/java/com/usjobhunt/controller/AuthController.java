@@ -2,6 +2,7 @@ package com.usjobhunt.controller;
 
 import com.usjobhunt.dto.AuthRequest;
 import com.usjobhunt.dto.AuthResponse;
+import com.usjobhunt.dto.UserMeDto;
 import com.usjobhunt.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +51,15 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok(Map.of("success", true));
+    }
+
+    /**
+     * 当前登录用户（Authorization: Bearer &lt;JWT&gt;）
+     */
+    @GetMapping("/me")
+    public ResponseEntity<UserMeDto> me(
+        @RequestHeader(value = "Authorization", required = false) String authHeader
+    ) {
+        return ResponseEntity.ok(authService.getProfileFromAuthHeader(authHeader));
     }
 }

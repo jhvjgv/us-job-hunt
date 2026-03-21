@@ -30,6 +30,9 @@ public class PaymentService {
     
     @Value("${alipay.app-id:}")
     private String alipayAppId;
+
+    @Value("${app.frontend-base-url:http://localhost:5173}")
+    private String frontendBaseUrl;
     
     private static final Map<String, PricingPlan> PRICING_PLANS = new LinkedHashMap<>();
     
@@ -107,7 +110,7 @@ public class PaymentService {
             plan.getPrice().toString(),
             "美职通 - " + plan.getName(),
             "华人程序员美国求职辅导 - " + plan.getName(),
-            "http://localhost:3000/payment/success?orderId=" + orderId,
+            frontendBaseUrl + "/payment/success?orderId=" + orderId,
             "http://localhost:8080/api/payment/notifyAlipay"
         );
         

@@ -2,7 +2,9 @@ package com.usjobhunt.service;
 
 import com.usjobhunt.dto.AuthRequest;
 import com.usjobhunt.dto.AuthResponse;
+import com.usjobhunt.dto.UserMeDto;
 import com.usjobhunt.entity.LocalUser;
+import com.usjobhunt.exception.UnauthorizedException;
 import com.usjobhunt.repository.LocalUserRepository;
 import com.usjobhunt.util.JwtUtil;
 import com.usjobhunt.util.PasswordUtil;
@@ -94,5 +96,28 @@ public class AuthService {
     
     public Optional<LocalUser> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    /**
+     * 供 GET /auth/me：校验 Bearer JWT 并返回当前用户。
+     */
+    public UserMeDto getProfileFromAuthHeader(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        String token = authHeader.substring(7).trim();
+        if (token.isEmpty() || !jwtUtil.isTokenValid(token)) {
+            throw new UnauthorizedException("Unauthorized");
+        }
+        try {
+            Long userId = jwtUtil.getUserIdFromToken(token);
+            return userRepository.findById(userId)
+                .map(UserMeDto::fromEntity)
+                .orElseThrow(() -> new UnauthorizedException("Unauthorized"));
+        } catch (UnauthorizedException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new UnauthorizedException("Unauthorized");
+        }
     }
 }

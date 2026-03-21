@@ -3,24 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { paymentApi } from "@/lib/api";
+import { paymentApi, type PricingPlanDto } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2, Check } from "lucide-react";
-
-interface PricingPlan {
-  id: string;
-  name: string;
-  price: number;
-  description: string;
-  features: string[];
-}
 
 export default function PricingAdapted() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [plans, setPlans] = useState<PricingPlanDto[]>([]);
   const [plansLoading, setPlansLoading] = useState(true);
 
   // 在组件挂载时获取定价方案

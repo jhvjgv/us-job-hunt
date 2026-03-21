@@ -4,21 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { trpc } from "@/lib/trpc";
+import { authApi } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const { login } = useLocalAuth();
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-
-  const loginMutation = trpc.auth.local.login.useMutation();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,19 +40,21 @@ export default function Login() {
     }
 
     try {
-      const result = await loginMutation.mutateAsync({
+      const result = await authApi.login({
         email: formData.email,
         password: formData.password,
       });
 
-      // Save user to context
+      localStorage.setItem("authToken", result.token);
+      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+
       login({
         id: result.id,
         email: result.email,
         name: result.name || "",
       });
 
-      toast.success(`欢迎回来，${result.name}！`);
+      toast.success(`欢迎回来，${result.name || "用户"}！`);
       // Redirect to home after login
       setLocation("/");
     } catch (error: any) {

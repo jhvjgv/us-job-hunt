@@ -1,24 +1,24 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "wouter";
+import { useSearchParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Home, Mail } from "lucide-react";
 import UserInfoDialog from "@/components/UserInfoDialog";
-import { paymentApi } from "@/lib/api";
+import { paymentApi, type PaymentOrderResponse } from "@/lib/api";
 import { toast } from "sonner";
 
 export default function PaymentSuccessWithDialog() {
   const [searchParams] = useSearchParams();
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [order, setOrder] = useState<any>(null);
+  const [order, setOrder] = useState<PaymentOrderResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
 
   useEffect(() => {
-    const id = searchParams.orderId;
+    const id = searchParams.get("orderId");
     if (!id) {
-      navigate("/");
+      setLocation("/");
       return;
     }
 
@@ -30,11 +30,12 @@ export default function PaymentSuccessWithDialog() {
         const orderData = await paymentApi.getOrder(id);
         setOrder(orderData);
 
+        const paid =
+          orderData.status?.toUpperCase() === "PAID" ||
+          orderData.status?.toLowerCase() === "paid";
+
         // 如果订单已支付且用户信息未提交，显示弹窗
-        if (
-          orderData.status === "PAID" &&
-          !orderData.infoSubmitted
-        ) {
+        if (paid && !orderData.infoSubmitted) {
           // 延迟显示弹窗，让用户先看到成功页面
           setTimeout(() => {
             setShowDialog(true);
@@ -48,7 +49,7 @@ export default function PaymentSuccessWithDialog() {
     };
 
     fetchOrder();
-  }, [searchParams, navigate]);
+  }, [searchParams, setLocation]);
 
   if (loading) {
     return (
@@ -87,8 +88,12 @@ export default function PaymentSuccessWithDialog() {
                 <div className="bg-slate-50 p-4 rounded-lg">
                   <p className="text-sm text-slate-600 mb-1">套餐</p>
                   <p className="text-lg font-semibold text-slate-900">
-                    {order?.planName?.charAt(0).toUpperCase() +
-                      order?.planName?.slice(1)}
+                    {(() => {
+                      const name = order?.planName ?? "";
+                      return name
+                        ? name.charAt(0).toUpperCase() + name.slice(1)
+                        : "—";
+                    })()}
                   </p>
                 </div>
                 <div className="bg-slate-50 p-4 rounded-lg">
@@ -162,7 +167,7 @@ export default function PaymentSuccessWithDialog() {
             </Button>
             <Button
               variant="outline"
-              onClick={() => navigate("/")}
+              onClick={() => setLocation("/")}
               className="px-8 h-12 text-base"
             >
               <Home className="mr-2 h-5 w-5" />
