@@ -1,18 +1,16 @@
 package com.usjobhunt.util;
 
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
+import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.response.AlipayTradePagePayResponse;
+import com.alipay.api.internal.util.AlipaySignature;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.Signature;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import jakarta.annotation.PostConstruct;
+import java.util.Map;
 
 @Component
 public class AlipayUtil {
@@ -23,88 +21,70 @@ public class AlipayUtil {
     @Value("${alipay.merchant-private-key}")
     private String merchantPrivateKey;
     
-    @Value("${alipay.gateway-url}")
-    private String gatewayUrl;
-    
     @Value("${alipay.alipay-public-key}")
     private String alipayPublicKey;
     
+    @Value("${alipay.gateway-url}")
+    private String gatewayUrl;
+    
+    @Value("${alipay.encrypt-key:}")
+    private String encryptKey;
+    
+    private AlipayClient alipayClient;
+
+    @PostConstruct
+    public void init() {
+        // 如果提供了 encryptKey，则开启 AES 加密
+        if (encryptKey != null && !encryptKey.trim().isEmpty()) {
+            alipayClient = new DefaultAlipayClient(
+                gatewayUrl, appId, merchantPrivateKey, "json", "UTF-8", 
+                alipayPublicKey, "RSA2", encryptKey, "AES"
+            );
+        } else {
+            alipayClient = new DefaultAlipayClient(
+                gatewayUrl, appId, merchantPrivateKey, "json", "UTF-8", 
+                alipayPublicKey, "RSA2"
+            );
+        }
+    }
+    
     public String generatePaymentUrl(String orderId, String amount, String subject, 
                                      String description, String returnUrl, String notifyUrl) {
+        AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+        request.setReturnUrl(returnUrl);
+        request.setNotifyUrl(notifyUrl);
+        
+        // 构建业务参数
+        String bizContent = String.format(
+            "{\"out_trade_no\":\"%s\",\"total_amount\":\"%s\",\"subject\":\"%s\",\"body\":\"%s\",\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}",
+            orderId, amount, subject, description
+        );
+        request.setBizContent(bizContent);
+        
+        // 如果开启了加密，SDK 会自动处理 biz_content 的加密
+        if (encryptKey != null && !encryptKey.trim().isEmpty()) {
+            request.setNeedEncrypt(true);
+        }
+        
         try {
-            Map<String, String> params = new TreeMap<>();
-            params.put("app_id", appId);
-            params.put("method", "alipay.trade.page.pay");
-            params.put("format", "JSON");
-            params.put("return_url", returnUrl);
-            params.put("notify_url", notifyUrl);
-            params.put("version", "1.0");
-            params.put("sign_type", "RSA2");
-            params.put("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            params.put("charset", "utf-8");
-            
-            String bizContent = String.format(
-                "{\"out_trade_no\":\"%s\",\"total_amount\":\"%s\",\"subject\":\"%s\",\"body\":\"%s\",\"product_code\":\"FAST_INSTANT_TRADE_PAY\"}",
-                orderId, amount, subject, description
-            );
-            params.put("biz_content", bizContent);
-            
-            String sign = signParams(params);
-            params.put("sign", sign);
-            
-            return buildPaymentUrl(params);
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to generate payment URL", e);
-        }
-    }
-    
-    private String signParams(Map<String, String> params) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (!"sign".equals(entry.getKey()) && !"sign_type".equals(entry.getKey())) {
-                if (sb.length() > 0) {
-                    sb.append("&");
-                }
-                sb.append(entry.getKey()).append("=").append(entry.getValue());
+            AlipayTradePagePayResponse response = alipayClient.pageExecute(request);
+            if (response.isSuccess()) {
+                return response.getBody();
+            } else {
+                throw new RuntimeException("Failed to generate payment URL: " + response.getMsg());
             }
+        } catch (AlipayApiException e) {
+            throw new RuntimeException("Alipay API error", e);
         }
-        
-        String signContent = sb.toString();
-        PrivateKey privateKey = getPrivateKey();
-        
-        Signature signature = Signature.getInstance("SHA256withRSA");
-        signature.initSign(privateKey);
-        signature.update(signContent.getBytes(StandardCharsets.UTF_8));
-        
-        byte[] signBytes = signature.sign();
-        return Base64.getEncoder().encodeToString(signBytes);
     }
     
-    private String buildPaymentUrl(Map<String, String> params) throws UnsupportedEncodingException {
-        StringBuilder sb = new StringBuilder(gatewayUrl);
-        sb.append("?");
-        
-        boolean first = true;
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (!first) {
-                sb.append("&");
-            }
-            sb.append(entry.getKey()).append("=").append(URLEncoder.encode(entry.getValue(), StandardCharsets.UTF_8));
-            first = false;
+    public boolean verifySignature(Map<String, String> params) {
+        try {
+            // 如果开启了加密，验签前可能需要先解密，但支付宝 SDK 的 rsaCheckV1 通常处理的是外层签名
+            // 对于异步通知，通常先验签
+            return AlipaySignature.rsaCheckV1(params, alipayPublicKey, "UTF-8", "RSA2");
+        } catch (AlipayApiException e) {
+            return false;
         }
-        
-        return sb.toString();
-    }
-    
-    private PrivateKey getPrivateKey() throws Exception {
-        String privateKeyPEM = merchantPrivateKey
-            .replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .replaceAll("\\s+", "");
-        
-        byte[] decodedKey = Base64.getDecoder().decode(privateKeyPEM);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decodedKey);
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        return keyFactory.generatePrivate(keySpec);
     }
 }

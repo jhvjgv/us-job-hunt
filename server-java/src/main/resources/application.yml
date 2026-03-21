@@ -49,6 +49,7 @@ alipay:
   app-id: ${ALIPAY_APP_ID:}
   merchant-private-key: ${ALIPAY_MERCHANT_PRIVATE_KEY:}
   alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+  encrypt-key: ${ALIPAY_ENCRYPT_KEY:}
   gateway-url: https://openapi.alipay.com/gateway.do
 
 # CORS Configuration

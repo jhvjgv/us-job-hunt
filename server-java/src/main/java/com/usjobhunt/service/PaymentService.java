@@ -129,6 +129,11 @@ public class PaymentService {
     }
     
     public Map<String, Object> notifyAlipay(Map<String, String> params) {
+        // 🎯 核心修复：添加支付宝异步通知验签
+        if (!alipayUtil.verifySignature(params)) {
+            return Map.of("success", false, "message", "Signature verification failed");
+        }
+
         String outTradeNo = params.get("out_trade_no");
         String tradeStatus = params.get("trade_status");
         
