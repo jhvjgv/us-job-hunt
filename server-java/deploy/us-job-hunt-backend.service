@@ -1,0 +1,28 @@
+[Unit]
+Description=US Job Hunt Spring Boot backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 建议改为专用用户：User=usjobhunt 并保证该用户对 WorkingDirectory 可读
+User=root
+WorkingDirectory=/root/us-job-hunt/server-java
+
+# 敏感信息放在单独文件（见 backend.env.example），权限：chmod 600 /etc/us-job-hunt/backend.env
+EnvironmentFile=/etc/us-job-hunt/backend.env
+
+# 若不用 EnvironmentFile，可改为下面三行（密码勿提交到 Git）：
+# Environment=DATABASE_URL=jdbc:postgresql://db.xxxxx.supabase.co:5432/postgres?sslmode=require
+# Environment=DATABASE_USERNAME=postgres
+# Environment=DATABASE_PASSWORD=your-password
+
+ExecStart=/usr/bin/java -jar /root/us-job-hunt/server-java/target/us-job-hunt-backend-1.0.0.jar
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=us-job-hunt-backend
+
+[Install]
+WantedBy=multi-user.target
