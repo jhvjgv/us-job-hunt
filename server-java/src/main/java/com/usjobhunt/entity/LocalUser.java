@@ -36,7 +36,7 @@ public class LocalUser {
     @Column(length = 20)
     private String phone;
     
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String targetCompanies;  // JSON array: ["Google", "Meta", ...]
     
     @Column

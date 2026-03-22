@@ -3,10 +3,12 @@ spring:
     name: us-job-hunt-backend
   
   datasource:
-    url: jdbc:mysql://localhost:3306/us_job_hunt?useSSL=false&serverTimezone=UTC&characterEncoding=utf8mb4
-    username: root
-    password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # Supabase：Dashboard → Connect → Connection string → JDBC（需 sslmode=require）
+    # 例：jdbc:postgresql://db.xxxxx.supabase.co:5432/postgres?sslmode=require
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
   
   jpa:
     hibernate:
@@ -14,7 +16,7 @@ spring:
     show-sql: false
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         jdbc:
           batch_size: 20
