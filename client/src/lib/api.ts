@@ -1,6 +1,7 @@
 /**
  * REST API — Java Spring Boot（context-path: /api）
- * 开发环境：Vite 将 /api 代理到 http://localhost:8080
+ * - 本地：`/api` 走 Vite 代理到 8080
+ * - 前后端分离上线：在构建环境设置 `VITE_API_URL`，须带 context-path，例如 `https://api.你的域名.com/api`
  */
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";

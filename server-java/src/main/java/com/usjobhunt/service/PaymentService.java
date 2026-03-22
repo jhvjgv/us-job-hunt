@@ -33,6 +33,10 @@ public class PaymentService {
 
     @Value("${app.frontend-base-url:http://localhost:5173}")
     private String frontendBaseUrl;
+
+    /** 后端对公网可访问的根 URL，如 https://api.example.com（无尾斜杠）；用于支付宝 notifyUrl */
+    @Value("${app.backend-public-url:http://localhost:8080}")
+    private String backendPublicUrl;
     
     private static final Map<String, PricingPlan> PRICING_PLANS = new LinkedHashMap<>();
     
@@ -111,7 +115,7 @@ public class PaymentService {
             "美职通 - " + plan.getName(),
             "华人程序员美国求职辅导 - " + plan.getName(),
             frontendBaseUrl + "/payment/success?orderId=" + orderId,
-            "http://localhost:8080/api/payment/notifyAlipay"
+            backendPublicUrl + "/api/payment/notifyAlipay"
         );
         
         return PaymentResponse.builder()

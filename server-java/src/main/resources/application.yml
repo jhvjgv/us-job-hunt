@@ -31,9 +31,11 @@ server:
   servlet:
     context-path: /api
 
-# 前端地址（支付宝同步跳转、本地开发默认 Vite 5173）
+# 前端公网地址（支付宝同步跳转回你的站点）
+# 后端公网根地址（不含 /api 路径；用于拼接支付宝异步通知 URL，须 HTTPS 可公网访问）
 app:
   frontend-base-url: ${FRONTEND_BASE_URL:http://localhost:5173}
+  backend-public-url: ${BACKEND_PUBLIC_URL:http://localhost:8080}
 
 logging:
   level:
