@@ -59,9 +59,10 @@ export default function Pricing() {
       <div className="container max-w-6xl mx-auto">
         {/* 标题 */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-slate-900 mb-4">选择你的求职套餐</h1>
-          <p className="text-xl text-slate-600">
-            专业的求职辅导，帮助你成功拿到美国科技公司 Offer
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">选择你的求职套餐</h1>
+          <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Choose your plan · Athena Programming</p>
+          <p className="text-xl text-slate-600 mt-4">
+            专业辅导，助力美国科技公司 Offer · Coaching for US tech offers
           </p>
         </div>
 

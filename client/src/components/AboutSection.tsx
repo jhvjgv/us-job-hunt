@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { CONTACT } from "@/branding";
 
 const INTERVIEW_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663452981219/jKTVo2pKdeetrYkgT9nWL4/interview-prep-Gb6kihTmLjZitRVvdBThSt.webp";
 
@@ -98,7 +99,7 @@ export default function AboutSection() {
             </h2>
             <div className="space-y-4 font-dm-sans text-gray-600 leading-relaxed">
               <p>
-                美职通创立于 2016 年，由一群在 FAANG 工作的华人工程师共同创办。
+                雅典娜编程（Athena Programming）由长期在美国科技行业工作的工程师与导师共同打造，主理人雅典娜 Coder · Athena 专注华人程序员赴美路径。
                 我们深知华人程序员在美国求职中面临的独特挑战：
                 语言障碍、文化差异、信息不对称、缺乏内推资源……
               </p>
@@ -116,7 +117,7 @@ export default function AboutSection() {
             <div className="mt-8 flex flex-wrap gap-4">
               <Button
                 className="bg-[#1B2B4B] hover:bg-[#243a63] text-white border-0 font-dm-sans"
-                onClick={() => toast.info("感谢你的兴趣！请通过微信联系我们：MeiZhiTong2024")}
+                onClick={() => toast.info(`感谢你的兴趣！请通过微信联系我们：${CONTACT.wechat}`)}
               >
                 预约免费咨询
               </Button>

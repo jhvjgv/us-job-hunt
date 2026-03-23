@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Check, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
+import { CONTACT } from "@/branding";
 
 const plans = [
   {
@@ -209,7 +210,8 @@ export default function PricingSection() {
         {/* Bottom note */}
         <div className="text-center mt-12">
           <p className="font-dm-sans text-sm text-white/40">
-            所有方案均支持分期付款 · 不满意随时退款 · 微信咨询：<span className="text-white/60">MeiZhiTong2024</span>
+            所有方案均支持分期付款 · 不满意随时退款 · 微信：
+            <span className="text-white/60">{CONTACT.wechat}</span>
           </p>
         </div>
       </div>

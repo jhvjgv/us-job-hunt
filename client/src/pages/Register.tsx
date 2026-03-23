@@ -84,9 +84,9 @@ export default function Register() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-slate-800 border-slate-700">
         <CardHeader className="space-y-2">
-          <CardTitle className="text-2xl text-white">创建账户</CardTitle>
+          <CardTitle className="text-2xl text-white">创建账户 · Create account</CardTitle>
           <CardDescription className="text-slate-400">
-            加入美职通，开启美国求职之旅
+            加入雅典娜编程 Athena Programming，开启美国科技岗求职之旅
           </CardDescription>
         </CardHeader>
         <CardContent>

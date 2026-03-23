@@ -69,9 +69,9 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-slate-800 border-slate-700">
         <CardHeader className="space-y-2">
-          <CardTitle className="text-2xl text-white">登录账户</CardTitle>
+          <CardTitle className="text-2xl text-white">登录账户 · Sign in</CardTitle>
           <CardDescription className="text-slate-400">
-            登录美职通，继续你的求职之旅
+            雅典娜编程 Athena Programming — 继续你的美国求职准备
           </CardDescription>
         </CardHeader>
         <CardContent>

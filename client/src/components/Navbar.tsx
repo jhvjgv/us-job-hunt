@@ -1,10 +1,9 @@
 /*
- * Navbar Component
- * Design: 深海军蓝背景，固定顶部，滚动后增加阴影
- * Font: DM Sans for nav items
+ * Navbar — 雅典娜编程 Athena Programming
  */
 
 import { useState, useEffect } from "react";
+import { BRAND } from "@/branding";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
@@ -53,10 +52,10 @@ export default function Navbar() {
             onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
           >
             <div className="w-8 h-8 rounded-lg bg-[#E8603C] flex items-center justify-center font-bold text-white text-sm font-serif-sc">
-              职
+              {BRAND.logoMark}
             </div>
             <span className="font-serif-sc font-bold text-white text-lg leading-tight">
-              美职通
+              {BRAND.siteZh}
             </span>
           </a>
 

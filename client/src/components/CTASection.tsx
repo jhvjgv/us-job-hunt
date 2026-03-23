@@ -6,6 +6,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { CONTACT } from "@/branding";
 
 export default function CTASection() {
   return (
@@ -48,7 +49,7 @@ export default function CTASection() {
               size="lg"
               variant="outline"
               className="border-white/50 text-white bg-transparent hover:bg-white/15 font-dm-sans text-base px-10 h-14"
-              onClick={() => toast.info("微信号：MeiZhiTong2024，添加后发送「求职」即可。")}
+              onClick={() => toast.info(`微信号：${CONTACT.wechat}，添加后发送「求职」即可。`)}
             >
               <MessageCircle size={18} className="mr-2" />
               微信咨询

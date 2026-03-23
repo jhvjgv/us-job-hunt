@@ -1,7 +1,8 @@
 /*
- * Footer
- * Design: 深海军蓝背景，四列布局，底部版权信息
+ * Footer — 雅典娜编程 Athena Programming
  */
+
+import { BRAND, copyrightLine } from "@/branding";
 
 const footerLinks = {
   服务: [
@@ -18,10 +19,10 @@ const footerLinks = {
     { label: "关于我们", href: "#about" },
   ],
   联系: [
-    { label: "微信：MeiZhiTong2024", href: "#" },
-    { label: "邮箱：hello@meizhitong.com", href: "#" },
-    { label: "公众号：美职通", href: "#" },
-    { label: "小红书：美职通求职", href: "#" },
+    { label: "微信：AthenaProgramming", href: "#" },
+    { label: "邮箱：hello@athenaprogramming.com", href: "#" },
+    { label: "公众号：雅典娜编程", href: "#" },
+    { label: "小红书：雅典娜编程", href: "#" },
   ],
 };
 
@@ -40,13 +41,15 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-[#E8603C] flex items-center justify-center font-bold text-white text-sm font-serif-sc">
-                职
+                {BRAND.logoMark}
               </div>
-              <span className="font-serif-sc font-bold text-white text-lg">美职通</span>
+              <span className="font-serif-sc font-bold text-white text-lg">{BRAND.siteZh}</span>
             </div>
+            <p className="font-dm-sans text-xs text-white/40 mb-1">{BRAND.siteEn}</p>
             <p className="font-dm-sans text-sm text-white/50 leading-relaxed mb-5">
-              专为华人程序员打造的美国求职全流程服务，
-              8 年经验，1200+ 成功案例。
+              雅典娜 Coder · Athena — 华人程序员赴美求职全流程
+              <br />
+              <span className="text-white/40">Structured US tech job search for Chinese-speaking engineers.</span>
             </p>
             <div className="flex gap-3">
               {["微信", "知乎", "小红书"].map((platform) => (
@@ -86,7 +89,7 @@ export default function Footer() {
         {/* Bottom */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="font-dm-sans text-xs text-white/30">
-            © 2024 美职通 MeiZhiTong. All rights reserved.
+            {copyrightLine(new Date().getFullYear())}
           </p>
           <div className="flex gap-6">
             {["隐私政策", "服务条款", "退款政策"].map((item) => (

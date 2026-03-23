@@ -41,12 +41,12 @@ public class PaymentService {
     private static final Map<String, PricingPlan> PRICING_PLANS = new LinkedHashMap<>();
     
     static {
-        // 极简版：仅支持一年期普通会员
+        // 极简版：单一价位（美元），多 planId 均映射到同一方案
         PricingPlan annualMembership = PricingPlan.builder()
             .id("annual")
-            .name("年度会员")
-            .price(new BigDecimal("599"))
-            .description("一年期普通会员 - 享受全部 VIP 功能")
+            .name("雅典娜编程 · 体系课")
+            .price(new BigDecimal("39"))
+            .description("$39 USD — 年度会员权益（简历 / 面试 / 资源库等，以实际交付为准）")
             .features(Arrays.asList(
                 "简历优化（无限次）",
                 "模拟面试（无限次）",
@@ -112,8 +112,8 @@ public class PaymentService {
         String paymentUrl = alipayUtil.generatePaymentUrl(
             orderId,
             plan.getPrice().toString(),
-            "美职通 - " + plan.getName(),
-            "华人程序员美国求职辅导 - " + plan.getName(),
+            "雅典娜编程 Athena - " + plan.getName(),
+            "华人程序员美国求职辅导 Athena Programming - " + plan.getName(),
             frontendBaseUrl + "/payment/success?orderId=" + orderId,
             backendPublicUrl + "/api/payment/notifyAlipay"
         );
@@ -173,7 +173,8 @@ public class PaymentService {
     }
     
     public List<PricingPlan> getPricingPlans() {
-        return new ArrayList<>(PRICING_PLANS.values());
+        // 避免 starter/pro/elite/annual 指向同一对象时在列表中重复出现
+        return Collections.singletonList(PRICING_PLANS.get("annual"));
     }
     
     public Map<String, Object> updateUserInfo(String orderId, String bilibiliAccount, String phone) {
