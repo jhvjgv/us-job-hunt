@@ -216,3 +216,110 @@ chmod +x deploy/run-dev-with-env.sh
 ## 十、修订记录
 
 - 2026-03：初稿（Supabase、PostgreSQL、systemd、IPv4/Pooler、环境变量持久化）。
+
+---
+
+## 十一、专项 SOP：前端能打开，后端打不开
+
+适用现象：
+- 浏览器访问 `http://job.athenaprogramming.com/` 能看到前端页面。
+- 但前端调用接口失败，或直接访问 `/api/...` 失败。
+
+### 1）先判断是 Nginx 问题还是后端服务问题
+
+在服务器执行：
+
+```bash
+sudo systemctl status us-job-hunt-backend
+curl -I http://127.0.0.1:8080/api/
+curl -I http://127.0.0.1/api/
+```
+
+判读：
+- `127.0.0.1:8080/api/` 返回非 `000`（常见 `401/403/404`）= 后端进程在跑。
+- `127.0.0.1/api/` 返回 `502/404` = Nginx 转发规则有问题。
+- `127.0.0.1:8080/api/` 直接超时/拒绝 = 后端没跑起来，先修后端。
+
+### 2）确认 Nginx 是“前端静态 + /api 反代”
+
+核心配置应满足：
+
+```nginx
+root /var/www/us-job-hunt;
+index index.html;
+
+location / {
+    try_files $uri $uri/ /index.html;
+}
+
+location /api/ {
+    proxy_pass http://127.0.0.1:8080/api/;
+}
+```
+
+检查并生效：
+
+```bash
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+### 3）确认前端静态文件在正确目录
+
+```bash
+ls -la /var/www/us-job-hunt
+```
+
+必须看到 `index.html` 和 `assets/`。若没有：
+
+```bash
+cd /root/us-job-hunt
+pnpm build
+sudo mkdir -p /var/www/us-job-hunt
+sudo cp -r /root/us-job-hunt/dist/public/* /var/www/us-job-hunt/
+sudo systemctl reload nginx
+```
+
+> 注意：本项目 Vite 输出目录是 `dist/public`，不是 `client/dist`。
+
+### 4）后端常见失败：连到了 localhost:5432
+
+若日志出现 `Connection to localhost:5432 refused`，说明后端未读到 Supabase 变量，退回默认本地数据库。
+
+修复步骤：
+
+```bash
+sudo nano /etc/us-job-hunt/backend.env
+sudo chmod 600 /etc/us-job-hunt/backend.env
+sudo systemctl restart us-job-hunt-backend
+journalctl -u us-job-hunt-backend -n 80 --no-pager
+```
+
+`backend.env` 至少应包含：
+
+```text
+DATABASE_URL=jdbc:postgresql://<supabase-host>:5432/postgres?sslmode=require
+DATABASE_USERNAME=<supabase-user>
+DATABASE_PASSWORD=<supabase-password>
+```
+
+### 5）域名层排查（前端可开通常已通过）
+
+```bash
+dig +short job.athenaprogramming.com
+```
+
+应解析到你的云服务器公网 IP。若不是，先改 DNS A 记录。
+
+### 6）一键复检命令（建议收藏）
+
+```bash
+sudo systemctl status us-job-hunt-backend
+journalctl -u us-job-hunt-backend -n 30 --no-pager
+sudo nginx -t
+sudo systemctl status nginx
+curl -I http://127.0.0.1:8080/api/
+curl -I http://127.0.0.1/api/
+```
+
+若这 6 条都正常，线上通常即可访问 `http://job.athenaprogramming.com/api/...`。
