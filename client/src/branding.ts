@@ -26,5 +26,8 @@ export const CONTACT = {
   email: "hello@athenaprogramming.com",
 } as const;
 
-/** 与后端 PaymentService 标价一致（美元） */
+/** 正式课 / 会员价：与后端 PaymentService 一致，仅在定价页展示 */
 export const PRICE_USD = 39 as const;
+
+/** 首页展示的试用价（Landing 用，不参与后端订单逻辑，除非你以后单独接 $1 产品） */
+export const TRIAL_PRICE_USD = 1 as const;

@@ -1,23 +1,11 @@
 /*
- * 首页 — 雅典娜编程 Athena Programming · 课程型落地（中英双语文案）
+ * 根路径：按域名分流 member（$1） / job（$39）
  */
 
-import CourseNavbar from "@/components/course-landing/CourseNavbar";
-import CourseHero from "@/components/course-landing/CourseHero";
-import CourseCurriculum from "@/components/course-landing/CourseCurriculum";
-import CourseAbout from "@/components/course-landing/CourseAbout";
-import CourseFooter from "@/components/course-landing/CourseFooter";
+import { getSiteEntry } from "@/siteEntry";
+import MemberSiteHome from "./MemberSiteHome";
+import JobSiteHome from "./JobSiteHome";
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-background">
-      <CourseNavbar />
-      <main>
-        <CourseHero />
-        <CourseCurriculum />
-        <CourseAbout />
-      </main>
-      <CourseFooter />
-    </div>
-  );
+  return getSiteEntry() === "member" ? <MemberSiteHome /> : <JobSiteHome />;
 }

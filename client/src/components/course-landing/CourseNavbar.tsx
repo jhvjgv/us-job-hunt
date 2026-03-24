@@ -1,19 +1,38 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { BRAND } from "@/branding";
+import { getSiteEntry, getJobOrigin, getMemberOrigin } from "@/siteEntry";
 
-const navLinks = [
-  { label: "课程大纲", labelEn: "Curriculum", href: "#curriculum" },
-  { label: "关于课程", labelEn: "About", href: "#about-course" },
-  { label: "定价方案", labelEn: "Pricing", href: "/pricing" },
-];
+type NavItem = {
+  label: string;
+  labelEn: string;
+  href: string;
+  external?: boolean;
+};
 
 export default function CourseNavbar() {
   const [, setLocation] = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const navLinks = useMemo<NavItem[]>(() => {
+    const jobRoot = `${getJobOrigin()}/`;
+    const memberRoot = `${getMemberOrigin()}/`;
+    if (getSiteEntry() === "member") {
+      return [
+        { label: "课程大纲", labelEn: "Curriculum", href: "#curriculum" },
+        { label: "关于课程", labelEn: "About", href: "#about-course" },
+        { label: "完整体系课 $39", labelEn: "job 站", href: jobRoot, external: true },
+      ];
+    }
+    return [
+      { label: "课程大纲", labelEn: "Curriculum", href: "#curriculum" },
+      { label: "关于课程", labelEn: "About", href: "#about-course" },
+      { label: "$1 试用入口", labelEn: "member 站", href: memberRoot, external: true },
+    ];
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -21,14 +40,18 @@ export default function CourseNavbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const go = (href: string) => {
+  const go = (item: NavItem) => {
     setOpen(false);
-    if (href.startsWith("#")) {
-      const el = document.querySelector(href);
+    if (item.external && item.href.startsWith("http")) {
+      window.location.href = item.href;
+      return;
+    }
+    if (item.href.startsWith("#")) {
+      const el = document.querySelector(item.href);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
-    setLocation(href);
+    setLocation(item.href);
   };
 
   return (
@@ -58,9 +81,9 @@ export default function CourseNavbar() {
           <nav className="hidden items-center gap-6 lg:gap-8 md:flex">
             {navLinks.map((l) => (
               <button
-                key={l.href}
+                key={l.label + l.href}
                 type="button"
-                onClick={() => go(l.href)}
+                onClick={() => go(l)}
                 className="group flex flex-col items-start gap-0 text-left"
               >
                 <span className="font-dm-sans text-sm text-muted-foreground transition-colors group-hover:text-foreground">
@@ -98,10 +121,10 @@ export default function CourseNavbar() {
           <div className="flex flex-col gap-1">
             {navLinks.map((l) => (
               <button
-                key={l.href}
+                key={l.label + l.href}
                 type="button"
                 className="rounded-md py-2.5 text-left font-dm-sans text-sm text-foreground"
-                onClick={() => go(l.href)}
+                onClick={() => go(l)}
               >
                 {l.label}{" "}
                 <span className="text-muted-foreground">({l.labelEn})</span>

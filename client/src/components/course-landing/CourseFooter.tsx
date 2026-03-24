@@ -1,8 +1,12 @@
 import { Link } from "wouter";
 import { BRAND, copyrightLine } from "@/branding";
+import { getJobOrigin, getMemberOrigin } from "@/siteEntry";
 
-export default function CourseFooter() {
+export default function CourseFooter({ variant }: { variant: "member" | "job" }) {
   const year = new Date().getFullYear();
+  const jobUrl = `${getJobOrigin()}/`;
+  const memberUrl = `${getMemberOrigin()}/`;
+
   return (
     <footer className="border-t bg-background py-10">
       <div className="container flex flex-col items-center justify-between gap-6 text-center md:flex-row md:text-left">
@@ -20,11 +24,17 @@ export default function CourseFooter() {
         </div>
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 font-dm-sans text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground">
-            首页 Home
+            本站首页 Home
           </Link>
-          <Link href="/pricing" className="hover:text-foreground">
-            全部产品 All plans
-          </Link>
+          {variant === "member" ? (
+            <a href={jobUrl} className="hover:text-foreground">
+              $39 体系课站 job
+            </a>
+          ) : (
+            <a href={memberUrl} className="hover:text-foreground">
+              $1 试用站 member
+            </a>
+          )}
           <span className="cursor-default hover:text-foreground">隐私 Privacy</span>
           <span className="cursor-default hover:text-foreground">条款 Terms</span>
         </nav>

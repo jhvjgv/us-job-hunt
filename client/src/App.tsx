@@ -1,4 +1,4 @@
-import { Toaster } from "@/components/ui/sonner";
+﻿import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
@@ -9,6 +9,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Pricing from "./pages/Pricing";
 import PaymentSuccess from "./pages/PaymentSuccess";
+import ProgramRedirect from "./pages/ProgramRedirect";
+import MemberPrice from "./pages/MemberPrice";
 
 function Router() {
   return (
@@ -16,6 +18,8 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path={"/login"} component={Login} />
       <Route path={"/register"} component={Register} />
+      <Route path={"/program"} component={ProgramRedirect} />
+      <Route path={"/price"} component={MemberPrice} />
       <Route path={"/pricing"} component={Pricing} />
       <Route path={"/payment/success"} component={PaymentSuccess} />
       <Route path={"/404"} component={NotFound} />

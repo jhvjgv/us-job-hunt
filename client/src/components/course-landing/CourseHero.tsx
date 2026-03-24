@@ -1,21 +1,25 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Play } from "lucide-react";
+﻿import { Button } from "@/components/ui/button";
+import { Play } from "lucide-react";
 import { Link } from "wouter";
-import { BRAND, PRICE_USD } from "@/branding";
+import { BRAND } from "@/branding";
+import { TrialJoinButton } from "@/components/checkout/TrialJoinButton";
+import { getJobOrigin } from "@/siteEntry";
 
-const bullets: { zh: string; en: string }[] = [
+/** 首页导师展示（示例信息可替换真人） */
+const mentors = [
   {
-    zh: "覆盖简历 → 投递 → 行为面 → 技术面 → Offer 谈判全链路",
-    en: "Full pipeline: resume → apply → behavioral → technical → offer",
+    name: "雅典娜 Coder · Athena",
+    title: "主理人 · 华人赴美求职体系课作者",
+    subtitle: "聚焦简历 / 面试 / 谈判全链路",
+    initial: "雅",
+    imageClass: "bg-gradient-to-br from-sky-500 to-indigo-600",
   },
   {
-    zh: "1v1 导师 + 可复盘的 Mock 与资料库",
-    en: "1:1 coaching, mock interviews & structured resources",
-  },
-  {
-    zh: "面向美国科技公司岗位（含 FAANG / 独角兽）",
-    en: "Focused on US tech roles (FAANG & high-growth startups)",
+    name: "合作导师（示例）",
+    title: "Senior SWE @ US Tech",
+    subtitle: "Mock 面试 · 系统设计 · 行为面",
+    initial: "M",
+    imageClass: "bg-gradient-to-br from-emerald-500 to-teal-700",
   },
 ];
 
@@ -26,98 +30,83 @@ export default function CourseHero() {
   };
 
   return (
-    <section className="border-b bg-muted/40">
-      <div className="container py-8 md:py-12">
-        <nav className="mb-6 font-dm-sans text-sm text-muted-foreground">
+    <section className="relative overflow-hidden border-b bg-gradient-to-b from-sky-50/80 via-white to-white">
+      {/* 装饰：浅色虚线感（近似参考站的 circuit 线） */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.35]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(90deg, transparent, transparent 48px, oklch(0.85 0.08 240 / 0.35) 48px, oklch(0.85 0.08 240 / 0.35) 49px)",
+        }}
+      />
+
+      <div className="container relative py-10 md:py-16">
+        <nav className="mb-8 font-dm-sans text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground">
             首页 Home
           </Link>
           <span className="mx-2 text-muted-foreground/50">/</span>
-          <span className="text-foreground">体系化求职课 · Structured Job Search</span>
+          <span className="text-foreground">雅典娜编程 · Athena Programming</span>
         </nav>
 
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start lg:gap-12">
-          <div>
-            <p className="mb-3 font-dm-sans text-sm font-medium text-accent">
-              {BRAND.siteBilingual} · {BRAND.personaBilingual}
-            </p>
-            <h1 className="font-serif-sc text-3xl font-bold leading-tight text-foreground md:text-4xl lg:text-[2.75rem]">
-              拿下你的第一份美国科技岗 Offer
-            </h1>
-            <p className="mt-2 font-dm-sans text-base text-muted-foreground md:text-lg">
-              Land your first US tech offer — a structured path for Chinese-speaking engineers.
-            </p>
-            <p className="mt-4 max-w-2xl font-dm-sans text-lg leading-relaxed text-muted-foreground">
-              系统化路径 + 实战演练，专为华人程序员设计。从简历到谈判，把「不知道怎么准备」变成「每一步都有抓手」。
-            </p>
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="mb-2 font-dm-sans text-sm font-medium text-primary">{BRAND.siteBilingual}</p>
+          <h1 className="font-serif-sc text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl">
+            学会如何
+            <br />
+            <span className="bg-gradient-to-r from-sky-600 to-indigo-600 bg-clip-text text-transparent">
+              敲开美国科技岗大门
+            </span>
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl font-dm-sans text-base leading-relaxed text-muted-foreground md:text-lg">
+            系统化内容 + 导师答疑 + 可复用资源，面向华人程序员的美国求职路径。
+            <span className="mt-2 block text-sm text-muted-foreground/90">
+              Structured coaching, curated resources, and mentor support — built for Chinese-speaking engineers targeting US roles.
+            </span>
+          </p>
 
-            <ul className="mt-8 space-y-4">
-              {bullets.map((t) => (
-                <li key={t.zh} className="flex gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-accent" aria-hidden />
-                  <div className="font-dm-sans text-sm text-foreground/90">
-                    <p>{t.zh}</p>
-                    <p className="mt-0.5 text-xs text-muted-foreground">{t.en}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Button
-                size="lg"
-                className="font-dm-sans bg-accent text-accent-foreground hover:bg-accent/90"
-                asChild
-              >
-                <Link href="/pricing">查看方案与定价 · View pricing</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="font-dm-sans border-foreground/20"
-                onClick={() => scrollTo("#curriculum")}
-              >
-                <Play className="mr-2 h-4 w-4" />
-                免费试听大纲 · Preview
-              </Button>
-            </div>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <TrialJoinButton
+              size="lg"
+              className="h-12 rounded-full bg-sky-600 px-10 font-dm-sans text-base font-semibold text-white shadow-lg shadow-sky-600/25 hover:bg-sky-700"
+            >
+              Join Now · 前往 /price
+            </TrialJoinButton>
+            <Button
+              size="lg"
+              variant="outline"
+              className="h-12 rounded-full border-sky-200 font-dm-sans"
+              onClick={() => scrollTo("#curriculum")}
+            >
+              <Play className="mr-2 h-4 w-4" />
+              课程大纲 · Syllabus
+            </Button>
           </div>
+          <p className="mt-4 font-dm-sans text-xs text-muted-foreground">
+            Join 将进入 member 站内页面 <code>/price</code>。$39 体系课在{" "}
+            <a href={`${getJobOrigin()}/`} className="text-primary underline">
+              job.athenaprogramming.com
+            </a>
+            。
+          </p>
+        </div>
 
-          <Card className="border-foreground/10 shadow-lg lg:sticky lg:top-20">
-            <div className="aspect-video w-full overflow-hidden rounded-t-xl bg-gradient-to-br from-primary/90 to-primary">
-              <div className="flex h-full flex-col items-center justify-center p-6 text-center text-primary-foreground">
-                <Play className="mb-3 h-14 w-14 opacity-90" strokeWidth={1.25} />
-                <p className="font-serif-sc text-lg font-semibold">体系课导览</p>
-                <p className="mt-1 font-dm-sans text-sm text-primary-foreground/80">Program overview · Try before you buy</p>
+        <div className="mx-auto mt-14 grid max-w-4xl gap-6 sm:grid-cols-2">
+          {mentors.map((m) => (
+            <div
+              key={m.name}
+              className="overflow-hidden rounded-2xl border border-sky-100 bg-white/90 shadow-md shadow-sky-900/5 backdrop-blur-sm"
+            >
+              <div className="border-b border-sky-50 bg-white px-4 py-3 text-left">
+                <p className="font-dm-sans text-xs font-semibold text-foreground">{m.name}</p>
+                <p className="font-dm-sans text-[11px] text-muted-foreground">{m.title}</p>
+                <p className="mt-0.5 font-dm-sans text-[11px] text-muted-foreground/80">{m.subtitle}</p>
+              </div>
+              <div className={`flex aspect-[16/10] items-center justify-center ${m.imageClass}`}>
+                <span className="font-serif-sc text-5xl font-bold text-white/95">{m.initial}</span>
               </div>
             </div>
-            <CardContent className="space-y-4 p-6">
-              <div>
-                <p className="font-dm-sans text-3xl font-semibold text-foreground">
-                  ${PRICE_USD}
-                  <span className="text-lg font-normal text-muted-foreground"> USD</span>
-                </p>
-                <p className="mt-1 font-dm-sans text-sm text-muted-foreground">
-                  与定价页一致 · Same price on the pricing page
-                </p>
-              </div>
-              <div className="flex flex-col gap-2">
-                <Button className="w-full font-dm-sans bg-accent text-accent-foreground hover:bg-accent/90" asChild>
-                  <Link href="/pricing">立即了解方案 · Get started</Link>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full font-dm-sans"
-                  onClick={() => scrollTo("#curriculum")}
-                >
-                  免费试听 · Free preview
-                </Button>
-              </div>
-              <p className="text-center font-dm-sans text-xs text-muted-foreground">
-                可先浏览大纲与试听 · Review the curriculum first, then pick a plan
-              </p>
-            </CardContent>
-          </Card>
+          ))}
         </div>
       </div>
     </section>
